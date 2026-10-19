@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071321">
+<title>BANTI JARVIS</title>
+<style>
+:root{color-scheme:dark;--bg:#071321;--panel:#0c2032;--cyan:#56d9ff;--muted:#a8c1d4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 20%,#123653 0,#071321 48%,#030811 100%);font-family:system-ui,Arial,sans-serif;color:#eaf7ff;min-height:100vh}
+main{max-width:620px;margin:auto;padding:24px 16px 40px}.brand{text-align:center;letter-spacing:.22em;color:var(--cyan);font-weight:800;font-size:24px}.tag{text-align:center;color:var(--muted);font-size:11px;letter-spacing:.16em;margin-top:5px}
+.orb{width:150px;height:150px;border:2px solid var(--cyan);border-radius:50%;margin:25px auto 18px;display:grid;place-items:center;box-shadow:0 0 25px #22baff55,inset 0 0 30px #22baff22;position:relative}
+.orb:before,.orb:after{content:"";position:absolute;border:1px solid #56d9ff88;border-radius:50%;inset:12px}.orb:after{inset:27px;border-style:dashed;animation:spin 20s linear infinite}
+.core{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle,#d5f8ff,#39caff 35%,#05629b 75%);box-shadow:0 0 24px #56d9ff;animation:pulse 2s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{box-shadow:0 0 42px #56d9ff;transform:scale(1.07)}}
+.status{text-align:center;color:#8fffd5;font-size:12px;margin:10px 0 20px}.panel{background:#0b1c2bd9;border:1px solid #24506a;border-radius:16px;padding:15px;margin-top:13px;box-shadow:0 8px 28px #0003}
+label{display:block;color:var(--muted);font-size:13px;margin:8px 0}input,textarea,button{font:inherit;border-radius:10px}input,textarea{width:100%;padding:12px;background:#06111d;border:1px solid #31536b;color:#fff;outline:none}textarea{min-height:70px;resize:vertical}
+button{border:1px solid #3b9fc6;background:#10364d;color:#eafaff;padding:12px 14px;font-weight:650;cursor:pointer}button.primary{background:linear-gradient(90deg,#087da9,#125077);border-color:#56d9ff}button:active{transform:scale(.99)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.chat{white-space:pre-wrap;line-height:1.5;min-height:75px;color:#eaf7ff}.small{font-size:12px;color:var(--muted);line-height:1.5}.row{display:flex;gap:8px}.row input{flex:1;min-width:0}.row button{white-space:nowrap}.warn{color:#ffd38b}.foot{text-align:center;color:#7d9caf;font-size:11px;margin-top:20px}
+</style>
+</head>
+<body><main>
+<div class="brand">BANTI JARVIS</div><div class="tag">PERSONAL VOICE ASSISTANT</div>
+<div class="orb" aria-label="Jarvis AI animation"><div class="core"></div></div>
+<div class="status" id="status">SYSTEM READY · TAP THE MIC TO SPEAK</div>
+<section class="panel">
+<div class="actions">
+<button class="primary" id="mic">🎙 Talk to Jarvis</button><button id="speak">🔊 Repeat reply</button>
+<button id="youtube">▶ Open YouTube</button><button id="settings">⚙ Open settings</button>
+</div>
+<label for="message">Ask Jarvis or type a phone command</label>
+<div class="row"><input id="message" placeholder="Hello Jarvis…" autocomplete="off"><button class="primary" id="send">Send</button></div>
+<div class="chat" id="chat" aria-live="polite">You: —\n\nJARVIS: Hello! I am ready. Tap the mic or type a command.</div>
+</section>
+<section class="panel">
+<strong>Optional AI connection</strong>
+<p class="small">For smart answers, connect an AI API through a secure backend. Do not paste a private API key into a public webpage.</p>
+<label for="endpoint">Your secure AI backend URL (optional)</label>
+<input id="endpoint" placeholder="https://your-server.example/api/chat">
+<label for="token">Temporary access token (if your backend requires it)</label>
+<input id="token" placeholder="Optional; not stored" type="password">
+<p class="small warn">This demo does not send questions anywhere unless you enter a backend URL. A secure backend is not included in this ZIP.</p>
+</section>
+<section class="panel">
+<strong>Commands to try</strong>
+<p class="small">“Open YouTube” · “Open WhatsApp” · “Open settings” · “Search nursing notes” · “Call 9876543210” · “What time is it?”</p>
+<p class="small">Phone commands use Android intents / web links and may ask you to choose an app. The browser cannot silently control all phone settings or place calls without your confirmation.</p>
+</section>
+<div class="foot">BANTI JARVIS · MOBILE WEB STARTER · v1</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let lastReply="Hello! I am ready.";
+function render(user,reply){$("chat").textContent="You: "+user+"\n\nJARVIS: "+reply;lastReply=reply;$("status").textContent="SYSTEM READY";speak(reply)}
+function speak(t){if("speechSynthesis"in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="en-IN";speechSynthesis.speak(u)}}
+function openUrl(url){window.open(url,"_blank","noopener")}
+async function command(raw){
+ let q=raw.trim();if(!q)return;let c=q.toLowerCase();$("status").textContent="PROCESSING…";
+ if(c.includes("open youtube")||c==="youtube"){render(q,"Opening YouTube.");openUrl("https://m.youtube.com");return}
+ if(c.includes("open whatsapp")||c==="whatsapp"){render(q,"Opening WhatsApp.");openUrl("https://wa.me/");return}
+ if(c.includes("open settings")){render(q,"Browser cannot open every Android setting. Use your phone's Settings app.");return}
+ if(c.startsWith("call ")||c.startsWith("dial ")){let n=q.split(/\s+/).slice(1).join("").replace(/[^\d+]/g,"");if(n.length>=3){render(q,"Opening your phone dialer. Confirm the number on your phone.");window.location.href="tel:"+n}else render(q,"Please say call followed by a phone number.");return}
+ if(c.startsWith("search ")||c.startsWith("google ")){let term=q.substring(q.indexOf(" ")+1);render(q,"Searching the web for "+term);openUrl("https://www.google.com/search?q="+encodeURIComponent(term));return}
+ if(c.includes("what time")||c.includes("time is it")){render(q,"The time is "+new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}));return}
+ if(c.includes("who are you")||c.includes("your name")){render(q,"I am Banti Jarvis, your personal voice assistant.");return}
+ if(c.includes("hello")||c.includes("hi jarvis")){render(q,"Hello! Banti Jarvis is online. What can I do for you?");return}
+ if(c.includes("help")||c.includes("what can you do")){render(q,"I can open YouTube and WhatsApp links, search the web, prepare a phone call, tell the time, and speak replies. Connect a secure AI backend for general AI answers.");return}
+ const endpoint=$("endpoint").value.trim(),token=$("token").value.trim();
+ if(endpoint){try{let headers={"Content-Type":"application/json"};if(token)headers.Authorization="Bearer "+token;let res=await fetch(endpoint,{method:"POST",headers,body:JSON.stringify({message:q})});if(!res.ok)throw new Error("Server returned "+res.status);let data=await res.json();render(q,data.reply||data.message||"Backend response received, but no 'reply' field was found.");}catch(e){render(q,"Could not connect to your AI backend. Check its URL, internet connection, and CORS settings.")}return}
+ render(q,"This command needs an AI backend. For now, try: open YouTube, open WhatsApp, search followed by your query, call followed by a number, or ask the time.");
+}
+$("send").onclick=()=>{let q=$("message").value;$("message").value="";command(q)};
+$("message").addEventListener("keydown",e=>{if(e.key==="Enter")$("send").click()});
+$("mic").onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$("status").textContent="VOICE INPUT NOT AVAILABLE IN THIS BROWSER";render("—","Voice recognition is not supported here. Open this page in Chrome and allow microphone access, or type your command.");return}
+ const r=new SR();r.lang="en-IN";r.interimResults=false;r.maxAlternatives=1;
+ $("status").textContent="LISTENING…";r.onresult=e=>command(e.results[0][0].transcript);r.onerror=()=>{$("status").textContent="VOICE ERROR";};r.onend=()=>{if($("status").textContent==="LISTENING…")$("status").textContent="SYSTEM READY"};r.start();
+};
+$("speak").onclick=()=>speak(lastReply);
+$("youtube").onclick=()=>openUrl("https://m.youtube.com");
+$("settings").onclick=()=>render("Open settings","A web page cannot directly open Android Settings on every phone. Please open Settings manually.");
+</script></body></html>
